@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <time.h>
-#define MAX_VERTEX 1000000
+#define MAX_VERTEX 4000000
 
 typedef struct heap_node{
     int dist;
@@ -260,8 +260,6 @@ int query(graph* graph, int src, int dest){
             if(!known[v]){
                 if(dist[u] != INT_MAX && (dist[u] + weight) < dist[v]){
                     dist[v] = dist[u] + weight;
-                    
-                    //如果还没有插入到堆中
                     if(heap->position[v] == -1){
                         insertMinHeap(heap, v, dist[v]);
                     }
