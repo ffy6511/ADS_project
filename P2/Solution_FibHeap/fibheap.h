@@ -1,39 +1,39 @@
-# ifndef FIBHEAP
-# define FIBHEAP
-//这个可以建一个GLOBAL文件专门存放这些
-typedef int Elementtype; 
-const int maxDegree = 45;
+// fibheap.h
+#ifndef FIBHEAP
+#define FIBHEAP
 
+#include "graph.h" // 包含 graph.h 以使用图结构
+
+typedef int Elementtype;
 
 typedef struct FibNode* Fib_Position;
 typedef struct Fib* FibHeap;
 
 struct Fib {
-	Fib_Position root;
-	int size;
-	int rootdegree;
+    Fib_Position root;      // 指向根链表中的最小节点
+    int size;               // 堆中节点的数量
 };
 
 struct FibNode {
-	Elementtype element;
-	Fib_Position left_sibling;
-	Fib_Position right_sibling;
-
-	Fib_Position parent;
-	Fib_Position children;
-	int degree;
-	int marked;
+    Elementtype element;           // 节点的关键字（距离值）
+    Fib_Position left_sibling;    // 左兄弟
+    Fib_Position right_sibling;   // 右兄弟
+    Fib_Position parent;          // 父节点
+    Fib_Position children;        // 子节点
+    int degree;                   // 度数
+    int marked;                   // 标记，用于剪切操作
+    int vertex;                   // 对应的顶点编号
 };
 
+// 函数声明
+Fib_Position Create_Node(Elementtype x, int vertex);
+void Print_Node(Fib_Position p);
+FibHeap Fibheap_Make_Heap();
+FibHeap Fibheap_Insert(FibHeap heap, Elementtype x, int vertex);
+FibHeap Fibheap_Delete_Min(FibHeap heap);
+FibHeap Fibheap_Merge(FibHeap h1, FibHeap h2);
+void Fibheap_Decrease_Key(FibHeap heap, Fib_Position x, Elementtype new_val);
+Fib_Position Fibheap_Find(FibHeap heap, int vertex);
+int query(graph* graph, int src, int dest);
 
-
-extern Fib_Position Create_Node(Elementtype x);
-extern void Print_Node(Fib_Position p);
-extern FibHeap Fibheap_Make_Heap();
-extern FibHeap Fibheap_Insert(FibHeap heap, Elementtype x);
-extern FibHeap Fibheap_Delete_Min(FibHeap heap);
-extern Fib_Position Fibheap_Find(FibHeap heap, Elementtype x);
-extern FibHeap Fibheap_Merge(FibHeap h1, FibHeap h2);
-extern void Fibheap_Decrease_Key(FibHeap heap, Fib_Position p, Elementtype x);
-
-# endif
+#endif
