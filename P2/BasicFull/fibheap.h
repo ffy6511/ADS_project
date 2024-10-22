@@ -9,51 +9,41 @@
 
 template <typename T>
 class FibonacciHeap {
-
-
 public:
-
     FibonacciHeap();
     ~FibonacciHeap();
 
     struct Node {
-        T key;
+        T key;        // 存储的值（键）
+        int val;      // 顶点的值
         int degree;
         Node* parent;
         Node* child;
         Node* left;
         Node* right;
         bool mark;
-        Node(T val);
+
+        Node(T k, int v) : key(k), val(v), degree(0), parent(nullptr), child(nullptr), left(this), right(this), mark(false) {}
     };
+
     Node* minNode;
-
-
     int heapSize;
 
     bool isEmpty() const;
-    void insert(T value);
-    T getMin() const;
+    void insert(T value, int vertex);
+    typename FibonacciHeap<T>::Node* getMin() const; // 修改为返回顶点的值
     void deleteMin();
-    //void decreaseKey(Node* node, T newValue);
-    void decreaseKey(typename FibonacciHeap<T>::Node* node, T newValue);
-    //void deleteNode(Node* node);
-    void deleteNode(typename FibonacciHeap<T>::Node* node);
+    void decreaseKey(Node* node, T newValue);
+    void deleteNode(Node* node);
     int size() const;
-    
 
-
-//private: 我生气了，全放public里算了
-
-
-
+private:
     void link(Node* y, Node* x);
     void consolidate();
     void cut(Node* x, Node* y);
     void cascadingCut(Node* y);
-
-
 };
+
 
 
 
@@ -78,29 +68,45 @@ public:
 
 
 
-//GPT：一些简单的函数都是GPT写的，在下面说明了
 
 
 
-template <typename T>
-FibonacciHeap<T>::Node::Node(T val) : key(val), degree(0), parent(nullptr), child(nullptr), left(this), right(this), mark(false) {}
 
+
+
+
+
+
+
+// Constructor
 template <typename T>
 FibonacciHeap<T>::FibonacciHeap() : minNode(nullptr), heapSize(0) {}
 
 template <typename T>
 FibonacciHeap<T>::~FibonacciHeap() {
-    // pass TODO:析构函数 我没写。。
+    if (minNode) {
+        // 释放所有节点
+        std::vector<Node*> nodes;
+        Node* current = minNode;
+        do {
+            nodes.push_back(current);
+            current = current->right;
+        } while (current != minNode);
+
+        for (Node* node : nodes) {
+            delete node;
+        }
+    }
 }
-//GPT：这个函数GPT写的
+
 template <typename T>
 bool FibonacciHeap<T>::isEmpty() const {
     return minNode == nullptr;
 }
-//GPT：这个函数GPT写的
+
 template <typename T>
-void FibonacciHeap<T>::insert(T value) {
-    Node* node = new Node(value);
+void FibonacciHeap<T>::insert(T value, int vertex) {
+    Node* node = new Node(value, vertex);
     if (!minNode) {
         minNode = node;
     }
@@ -115,17 +121,70 @@ void FibonacciHeap<T>::insert(T value) {
     }
     heapSize++;
 }
-//GPT：这个函数GPT写的
+
 template <typename T>
-T FibonacciHeap<T>::getMin() const {
+typename FibonacciHeap<T>::Node* FibonacciHeap<T>::getMin() const {
     if (!minNode) throw std::runtime_error("Heap is empty.");
-    return minNode->key;
+    return minNode; // 返回最小节点的指针
 }
 
+template <typename T>
+void FibonacciHeap<T>::deleteMin() {
+    if (!minNode) return;
+
+    Node* oldMin = minNode;
+    if (oldMin->child) {
+        Node* child = oldMin->child;
+        do {
+            child->parent = nullptr;
+            child = child->right;
+        } while (child != oldMin->child);
+
+        Node* minLeft = minNode->left;
+        Node* childLeft = oldMin->child->left;
+
+        minLeft->right = oldMin->child;
+        oldMin->child->left = minLeft;
+
+        childLeft->right = minNode->right;
+        minNode->right->left = childLeft;
+    }
+
+    minNode->left->right = minNode->right;
+    minNode->right->left = minNode->left;
+
+    if (minNode == minNode->right) {
+        minNode = nullptr;
+    }
+    else {
+        minNode = minNode->right;
+        consolidate();
+    }
+
+    delete oldMin;
+    heapSize--;
+}
+
+template <typename T>
+void FibonacciHeap<T>::decreaseKey(Node* node, T newValue) {
+    if (newValue > node->key) {
+        throw std::invalid_argument("New value is greater than current value.");
+    }
+    node->key = newValue;
+    Node* parent = node->parent;
+
+    if (parent && node->key < parent->key) {
+        cut(node, parent);
+        cascadingCut(parent);
+    }
+
+    if (minNode && node->key < minNode->key) {
+        minNode = node;
+    }
+}
 
 template <typename T>
 void FibonacciHeap<T>::link(Node* y, Node* x) {
-
     y->left->right = y->right;
     y->right->left = y->left;
 
@@ -192,62 +251,6 @@ void FibonacciHeap<T>::consolidate() {
 }
 
 template <typename T>
-void FibonacciHeap<T>::deleteMin() {
-    if (!minNode) return;
-
-    Node* oldMin = minNode;
-    if (oldMin->child) {
-        Node* child = oldMin->child;
-        do {
-            child->parent = nullptr;
-            child = child->right;
-        } while (child != oldMin->child);
-
-        Node* minLeft = minNode->left;
-        Node* childLeft = oldMin->child->left;
-
-        minLeft->right = oldMin->child;
-        oldMin->child->left = minLeft;
-
-        childLeft->right = minNode->right;
-        minNode->right->left = childLeft;
-    }
-
-    minNode->left->right = minNode->right;
-    minNode->right->left = minNode->left;
-
-    if (minNode == minNode->right) {
-        minNode = nullptr;
-    }
-    else {
-        minNode = minNode->right;
-        consolidate();
-    }
-
-    delete oldMin;
-    heapSize--;
-}
-
-//GPT：这个函数GPT写的
-template <typename T>
-void FibonacciHeap<T>::decreaseKey(typename FibonacciHeap<T>::Node* node, T newValue) {
-    if (newValue > node->key) {
-        throw std::invalid_argument("大了");
-    }
-    node->key = newValue;
-    Node* parent = node->parent;
-
-    if (parent && node->key < parent->key) {
-        cut(node, parent);
-        cascadingCut(parent);
-    }
-
-    if (node->key < minNode->key) {
-        minNode = node;
-    }
-}
-
-template <typename T>
 void FibonacciHeap<T>::cut(Node* x, Node* y) {
     if (x->right == x) {
         y->child = nullptr;
@@ -294,8 +297,5 @@ template <typename T>
 int FibonacciHeap<T>::size() const {
     return heapSize;
 }
-
-
-
 
 #endif // FIBONACCI_HEAP_H
