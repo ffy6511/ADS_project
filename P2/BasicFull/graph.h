@@ -7,7 +7,7 @@
 #include <mutex>
 #include <thread>
 
-# include "fibheap.h"
+#include "fibheap.h"
 
 class Graph {
 private:
@@ -41,6 +41,11 @@ public:
 
     // 显示图的邻接列表
     void displayGraph() const;
+
+    //返回图的顶点数
+    int getNumVertices() const {
+        return numVertices;
+    }
 
     std::pair<std::vector<int>, int> dijkstra(int startVertex, int endVertex);
 
