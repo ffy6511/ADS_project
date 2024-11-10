@@ -6,6 +6,8 @@
 
 #define max_size 501
 
+
+
 int main() {
     int N; // number of the internal nodes;
     printf("please input the number of internal nodes:\n");
@@ -46,9 +48,9 @@ int main() {
         //dynamical programming
         //BH : black height
         for (int internal_nodes = 3; internal_nodes <= N; internal_nodes++) {
-            for (int BH = (int)ceil(log(internal_nodes + 1) / log(4)); pow(2, BH) - 1 <= internal_nodes; BH++)  {
+            for (int BH = (int)ceil(log(internal_nodes + 1) / log(4)); 1 << BH - 1 <= internal_nodes; BH++)  {
                 //compute the subproblems
-                 for (int left_size = pow(2, BH - 1) - 1; left_size < pow(4, BH) - 1 && left_size < internal_nodes - 1; left_size++) {
+                 for (int left_size = pow(2, BH - 1) - 1; left_size < 1 << 2*BH - 1 && left_size < internal_nodes - 1; left_size++) {
                     int right_size = internal_nodes - 1 - left_size;
 
                     red_root_dp[internal_nodes][BH] += black_root_dp[left_size][BH - 1] * black_root_dp[right_size][BH - 1];
@@ -67,7 +69,7 @@ int main() {
 
         //sum up all the RBT with N internal nodes
         count = 0;
-        for (int i = (int)ceil(log(N + 1) / log(4)); pow(2, i) - 1 <= N; i++) {
+        for (int i = (int)ceil(log(N + 1) / log(4)); 1 << i - 1 <= N; i++) {
             count += black_root_dp[N][i];
 
             printf("black_root_dp of BH:%d is %lu\n\n", i, black_root_dp[N][i]);
