@@ -2,8 +2,10 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<math.h>
+#include <time.h> 
 
-#define max_size 100
+
+#define max_size 501
 
 int main() {
     int N; // number of the internal nodes;
@@ -15,8 +17,8 @@ int main() {
         return 0;
     }
 
-    int black_root_dp[max_size][max_size]; // dp[i][j] record RBT numbers when its internal nodes = i and black height = j
-    int red_root_dp[max_size][max_size]; //  same as the former, prepared for the former's calculation
+    unsigned  long int black_root_dp[max_size][max_size]; // dp[i][j] record RBT numbers when its internal nodes = i and black height = j
+    unsigned  long int red_root_dp[max_size][max_size]; //  same as the former, prepared for the former's calculation
 
     //initialize dp
     for (int i = 0; i <= N; i++) {
@@ -35,14 +37,16 @@ int main() {
     red_root_dp[2][1] = 0;
     red_root_dp[2][2] = 0;
 
-    int RB_black_root, BR_black_root, BB_black_root, RR_black_root;
+    unsigned long  int  RB_black_root, BR_black_root, BB_black_root, RR_black_root;
+
+    clock_t start_time = clock();
 
     //dynamical programming
     //BH : black height
     for (int internal_nodes = 3; internal_nodes <= N; internal_nodes++) {
-        for (int BH = 1; pow(2, BH) - 1 <= internal_nodes; BH++) {
+        for (int BH = (int)ceil(log(internal_nodes + 1) / log(4)); pow(2, BH) - 1 <= internal_nodes; BH++) {
             //compute the subproblems
-            for (int left_size = 1; left_size < internal_nodes - 1; left_size++) {
+            for (int left_size = pow(2,BH-1)-1 ; left_size < pow(4,BH)-1 && left_size < internal_nodes-1; left_size++) {
                 int right_size = internal_nodes - 1 - left_size;
 
                 red_root_dp[internal_nodes][BH] += black_root_dp[left_size][BH - 1] * black_root_dp[right_size][BH - 1];
@@ -58,17 +62,28 @@ int main() {
             }
         }
     }
-    
+
     //sum up all the RBT with N internal nodes
-    long int  count = 0;
-    for (int i = 1; pow(i,2)-1 <= N; i++) {
+    unsigned  long  int  count = 0;
+    for (int i = (int)ceil(log(N + 1) / log(4)); pow(2, i) - 1 <= N; i++) {
         count += black_root_dp[N][i];
-        printf("black_root_dp of BH:%d is %d\n", i, black_root_dp[N][i]);
-        printf("red_root_dp of BH:%d is %d\n", i, red_root_dp[N][i]);
+        printf("black_root_dp of BH:%d is %lu\n\n", i, black_root_dp[N][i]);
+        printf("red_root_dp of BH:%d is %lu\n\n", i, red_root_dp[N][i]);
     }
 
     count = count % 1000000007;
 
-    printf("\nThe number of different RBT with %d internal nodes is %ld", N, count);
+    
+    clock_t end_time = clock();
+
+    // 计算程序执行时间
+    double time_taken = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+
+    printf("Time taken for the computation: %f seconds\n", time_taken);
+
+
+
+    printf("\n------------Result------------- \nThe number of different RBT with %d internal nodes mod by 1000000007 is %lu", N, count);
 
 }
+
