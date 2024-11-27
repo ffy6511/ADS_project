@@ -155,8 +155,7 @@ float delete_min(min_heap* heap, float* prices, float* coupons) {
         heap->items[0].min_cost = prices[heap->items[0].price_id] - coupons[heap->items[0].coupon_id];
     } else {
         // The coupon is used up, remove the item from the heap
-        heap->items[0] = heap->items[heap->size - 1];
-        heap->size--;
+      heap->items[0].min_cost = prices[heap->items[0].price_id];
     }
 
     heapify(heap, 0);  // Maintain heap properties
