@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <limits.h> 
 
 // Rectangle structure definition
 typedef struct {
@@ -217,30 +218,28 @@ int calculateHeight(int containerWidth) {
 
 // Improved Skyline adjustment strategy
 void adjustSkyline(int startIndex, int width, int containerWidth) {
-    // Find minimum and maximum heights in current area
-    int minHeight = skyline[startIndex];
-    int maxHeight = minHeight;
+    // Find the minimum height from the neighboring regions
+    // For left side, check the height at startIndex - 1, if it's within bounds
+    int leftHeight = (startIndex > 0) ? skyline[startIndex - 1] : INT_MAX;
+
+    // For right side, check the height at startIndex + width, if it's within bounds
+    int rightHeight = (startIndex + width < containerWidth) ? skyline[startIndex + width] : INT_MAX;
+
+    // The target height is the minimum of the two neighboring heights
+    int targetHeight = (leftHeight < rightHeight) ? leftHeight : rightHeight;
+
+    // Now adjust the skyline in the current region
     for (int i = startIndex; i < startIndex + width && i < containerWidth; i++) {
-        if (skyline[i] < minHeight) minHeight = skyline[i];
-        if (skyline[i] > maxHeight) maxHeight = skyline[i];
-    }
-    
-    // If height difference exists, level up lower parts
-    if (minHeight < maxHeight) {
-        for (int i = startIndex; i < startIndex + width && i < containerWidth; i++) {
-            if (skyline[i] < maxHeight) {
-                skyline[i] = maxHeight;
-            }
-        }
-    } else {
-        // If height is uniform, increment entire section
-        int newHeight = minHeight + 1;
-        for (int i = startIndex; i < startIndex + width && i < containerWidth; i++) {
-            skyline[i] = newHeight;
+        // If the current section's height is less than the target, adjust it to the target
+        if (skyline[i] < targetHeight) {
+            skyline[i] = targetHeight;
         }
     }
 }
 
+
+
+// Main algorithm: Skyline Packing using BST
 // Main algorithm: Skyline Packing using BST
 int skylinePacking(Rectangle *rectangles, int n, int containerWidth) {
     initializeSkyline(containerWidth);
@@ -252,10 +251,8 @@ int skylinePacking(Rectangle *rectangles, int n, int containerWidth) {
     }
     
     int remainingRects = n;
-    int stuckCounter = 0;
-    const int MAX_STUCK_ATTEMPTS = 5;  // Maximum attempts when stuck
     
-    while (remainingRects > 0 && stuckCounter < MAX_STUCK_ATTEMPTS) {
+    while (remainingRects > 0) {
         int startIndex = 0;
         int maxWidth = findMaxWidth(containerWidth, &startIndex);
         printf("Current maxWidth: %d\n", maxWidth);
@@ -275,11 +272,9 @@ int skylinePacking(Rectangle *rectangles, int n, int containerWidth) {
             root = deleteNode(root, bestRect);
             
             remainingRects--;
-            stuckCounter = 0;
         } else {
-            printf("No suitable rectangle found. Adjusting skyline at index %d\n", startIndex);
+            printf("\nNo suitable rectangle found. Adjusting skyline at index %d :\n", startIndex);
             adjustSkyline(startIndex, maxWidth, containerWidth);
-            stuckCounter++;
         }
         
         printSkyline(containerWidth);
