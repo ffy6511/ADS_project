@@ -240,14 +240,15 @@ void adjustSkyline(int startIndex, int width, int containerWidth) {
 
 
 // Main algorithm: Skyline Packing using BST
-// Main algorithm: Skyline Packing using BST
 int skylinePacking(Rectangle *rectangles, int n, int containerWidth) {
     initializeSkyline(containerWidth);
     
+    int area_sum = 0; //calculate the sum of all areas
     // Build BST
     TreeNode* root = NULL;
     for (int i = 0; i < n; i++) {
         root = insert(root, rectangles[i]);
+        area_sum += rectangles[i].width * rectangles[i].height;
     }
     
     int remainingRects = n;
@@ -286,6 +287,14 @@ int skylinePacking(Rectangle *rectangles, int n, int containerWidth) {
     if (remainingRects > 0) {
         printf("Warning: Could not place all rectangles efficiently\n");
     }
+
+    float optimal_height = area_sum / (float)containerWidth;
+    int  current_height = calculateHeight(containerWidth);
+    float radio = current_height / optimal_height * 100;
+    // printf("The sum of all areas is: %d\n", area_sum);
+
+    printf("\n--------------------conclusion---------------------\n");
+    printf("- Approximation Ratio for skyline packing: %.4f%%\n", radio);
     
-    return calculateHeight(containerWidth);
+    return current_height;
 }

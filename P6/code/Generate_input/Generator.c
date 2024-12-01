@@ -3,8 +3,8 @@
 #include <time.h>
 
 // Define the maximum container width and number of rectangles
-#define CONTAINER_WIDTH 10
-#define NUMBER 10000
+#define CONTAINER_WIDTH 50
+#define NUMBER 5000
 
 // Function to generate random integers within range [min, max]
 int random_int(int min, int max) {
@@ -16,7 +16,7 @@ int main() {
     srand((unsigned int)time(NULL));
 
     // Open the output file
-    FILE *file = fopen("size_10000.txt", "w");
+    FILE *file = fopen("size_5000_short.txt", "w");
     if (file == NULL) {
         printf("Failed to create the file!\n");
         return 1;
@@ -29,14 +29,14 @@ int main() {
     // Generate rectangle data
     for (int i = 0; i < NUMBER; i++) {
         int width = random_int(1, CONTAINER_WIDTH); // Ensure width does not exceed CONTAINER_WIDTH
-        int height = random_int(1, 10);            // Height can be any value within range
+        int height = random_int(1, 4);            // Height can be any value within range
         fprintf(file, "%d %d\n", width, height);   // Write width and height to the file
     }
 
     // Close the file
     fclose(file);
 
-    printf("Data has been generated into the input_data.txt file.\n");
+    printf("Data has been generated\n");
     return 0;
 }
 

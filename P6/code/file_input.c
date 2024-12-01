@@ -24,7 +24,7 @@ int main() {
     int containerWidth; // Maximum width of the container
     int n; // Number of rectangles
 
-    fp = fopen("Generate_input/size_10000.txt", "r"); // Open input file, please change the file name to your own
+    fp = fopen("Generate_input/size_1000_short.txt", "r"); // Open input file, please change the file name to your own
     if (fp == NULL) {
         printf("Error: Cannot open input file\n");
         return 1;
@@ -56,7 +56,8 @@ int main() {
     fclose(fp);
 
     int finalHeight = skylinePacking(rectangles, n, containerWidth);  // Call the skyline packing function
-    printf("\nFinal container height: %d\n", finalHeight);
+    
+    printf("- Final height dealing with %d rectangles by skyline packing algorithm: %d\n", n, finalHeight);
 
     free(rectangles);
     return 0;
