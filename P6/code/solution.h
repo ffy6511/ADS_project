@@ -46,31 +46,23 @@ TreeNode* insert(TreeNode* root, Rectangle rect) {
     return root;
 }
 
-// Find largest rectangle that fits within target width
-TreeNode* findLargestFit(TreeNode* root, int targetWidth) {
+TreeNode* findLargestFit(TreeNode* root, int targetWidth){
+    if(root == NULL )return NULL;
+
     TreeNode* result = NULL;
-    
-    // Inorder traversal to find the largest width that doesn't exceed target
-    if (root != NULL) {
-        // First search in left subtree
+
+    //if current width is already larger than targetwidth, search the left subtree
+    if(root->rect.width > targetWidth){
         result = findLargestFit(root->left, targetWidth);
-        
-        // If current node fits and is larger than previous result
-        if (root->rect.width <= targetWidth && 
-            (result == NULL || root->rect.width > result->rect.width)) {
-            result = root;
-        }
-        
+    }
+    else{
         // If current node fits, search right subtree
-        if (root->rect.width <= targetWidth) {
-            TreeNode* rightResult = findLargestFit(root->right, targetWidth);
-            if (rightResult != NULL && 
-                rightResult->rect.width > result->rect.width) {
-                result = rightResult;
-            }
+        result = root;
+        TreeNode* rightResult = findLargestFit(root->right, targetWidth);
+        if(rightResult != NULL && rightResult->rect.width > result->rect.width){
+            result = rightResult;
         }
     }
-    
     return result;
 }
 
