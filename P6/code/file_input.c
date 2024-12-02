@@ -24,7 +24,7 @@ int main() {
     int containerWidth; // Maximum width of the container
     int n; // Number of rectangles
 
-    fp = fopen("Generate_input/size_10.txt", "r"); // Open input file, please change the file name to your own
+    fp = fopen("Generate_input/size_7000_short.txt", "r"); // Open input file, please change the file name to your own
     if (fp == NULL) {
         printf("Error: Cannot open input file\n");
         return 1;
