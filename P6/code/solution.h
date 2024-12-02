@@ -143,7 +143,7 @@ void printceiling_height(int containerWidth) {
     printf("\n");
 }
 
-// Find lowest point in ceiling_height and its maximum width
+// Find the first lowest point in ceiling_height and its width
 int findMaxWidth(int containerWidth, int* startIndex) {
     // First find the minimum height
     int minHeight = ceiling_height[0];
@@ -153,44 +153,43 @@ int findMaxWidth(int containerWidth, int* startIndex) {
         }
     }
     
-    // Then find widest area at minimum height
-    int maxSpace = 0;
-    int currentStart = 0;
+    // Then find the first wide area at the minimum height
+    int currentStart = -1;
     int currentWidth = 0;
     
     for (int i = 0; i < containerWidth; i++) {
         if (ceiling_height[i] == minHeight) {
             if (currentWidth == 0) {
-                currentStart = i;
+                currentStart = i;  // Mark the start of this segment
             }
             currentWidth++;
         } else {
-            if (currentWidth > maxSpace) {
-                maxSpace = currentWidth;
+            if (currentWidth > 0) {
+                // If we encountered a segment of minimum height, return it
                 *startIndex = currentStart;
+                return currentWidth;
             }
-            currentWidth = 0;
+            currentWidth = 0;  // Reset for the next possible segment
         }
     }
     
-    // Handle last segment
-    if (currentWidth > maxSpace) {
-        maxSpace = currentWidth;
+    // Handle the case where the segment ends at the last position
+    if (currentWidth > 0) {
         *startIndex = currentStart;
+        return currentWidth;
     }
     
-    // If no continuous area found, it's a single point
-    if (maxSpace == 0) {
-        for (int i = 0; i < containerWidth; i++) {
-            if (ceiling_height[i] == minHeight) {
-                *startIndex = i;
-                return 1;  // Return width of 1
-            }
+    // If no valid segment found, return width of 1 for the first occurrence of minimum height
+    for (int i = 0; i < containerWidth; i++) {
+        if (ceiling_height[i] == minHeight) {
+            *startIndex = i;
+            return 1;  // Return width of 1
         }
     }
     
-    return maxSpace;
+    return 0;  // Return 0 if no valid segment found (shouldn't happen under normal conditions)
 }
+
 
 void placeRectangle(int startIndex, int rectWidth, int rectHeight) {
     for (int i = startIndex; i < startIndex + rectWidth && i < MAX_WIDTH; i++) {
