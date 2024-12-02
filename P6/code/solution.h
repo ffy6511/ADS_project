@@ -16,9 +16,9 @@ typedef struct TreeNode {
     struct TreeNode *right;
 } TreeNode;
 
-// Define maximum width for Skyline
+// Define maximum width for ceiling_height
 #define MAX_WIDTH 1000
-int skyline[MAX_WIDTH];
+int ceiling_height[MAX_WIDTH];
 
 // BST operations
 TreeNode* createNode(Rectangle rect) {
@@ -136,28 +136,28 @@ void cleanupBST(TreeNode* root) {
     }
 }
 
-// Skyline related functions
-void initializeSkyline(int width) {
+// ceiling_height related functions
+void initializeceiling_height(int width) {
     for (int i = 0; i < width; i++) {
-        skyline[i] = 0;
+        ceiling_height[i] = 0;
     }
 }
 
-void printSkyline(int containerWidth) {
-    printf("Current Skyline: ");
+void printceiling_height(int containerWidth) {
+    printf("Current ceiling_height: ");
     for (int i = 0; i < containerWidth; i++) {
-        printf("%d ", skyline[i]);
+        printf("%d ", ceiling_height[i]);
     }
     printf("\n");
 }
 
-// Find lowest point in Skyline and its maximum width
+// Find lowest point in ceiling_height and its maximum width
 int findMaxWidth(int containerWidth, int* startIndex) {
     // First find the minimum height
-    int minHeight = skyline[0];
+    int minHeight = ceiling_height[0];
     for (int i = 0; i < containerWidth; i++) {
-        if (skyline[i] < minHeight) {
-            minHeight = skyline[i];
+        if (ceiling_height[i] < minHeight) {
+            minHeight = ceiling_height[i];
         }
     }
     
@@ -167,7 +167,7 @@ int findMaxWidth(int containerWidth, int* startIndex) {
     int currentWidth = 0;
     
     for (int i = 0; i < containerWidth; i++) {
-        if (skyline[i] == minHeight) {
+        if (ceiling_height[i] == minHeight) {
             if (currentWidth == 0) {
                 currentStart = i;
             }
@@ -190,7 +190,7 @@ int findMaxWidth(int containerWidth, int* startIndex) {
     // If no continuous area found, it's a single point
     if (maxSpace == 0) {
         for (int i = 0; i < containerWidth; i++) {
-            if (skyline[i] == minHeight) {
+            if (ceiling_height[i] == minHeight) {
                 *startIndex = i;
                 return 1;  // Return width of 1
             }
@@ -202,46 +202,46 @@ int findMaxWidth(int containerWidth, int* startIndex) {
 
 void placeRectangle(int startIndex, int rectWidth, int rectHeight) {
     for (int i = startIndex; i < startIndex + rectWidth && i < MAX_WIDTH; i++) {
-        skyline[i] += rectHeight;
+        ceiling_height[i] += rectHeight;
     }
 }
 
 int calculateHeight(int containerWidth) {
     int maxHeight = 0;
     for (int i = 0; i < containerWidth; i++) {
-        if (skyline[i] > maxHeight) {
-            maxHeight = skyline[i];
+        if (ceiling_height[i] > maxHeight) {
+            maxHeight = ceiling_height[i];
         }
     }
     return maxHeight;
 }
 
-// Improved Skyline adjustment strategy
-void adjustSkyline(int startIndex, int width, int containerWidth) {
+// Improved ceiling_height adjustment strategy
+void adjustceiling_height(int startIndex, int width, int containerWidth) {
     // Find the minimum height from the neighboring regions
     // For left side, check the height at startIndex - 1, if it's within bounds
-    int leftHeight = (startIndex > 0) ? skyline[startIndex - 1] : INT_MAX;
+    int leftHeight = (startIndex > 0) ? ceiling_height[startIndex - 1] : INT_MAX;
 
     // For right side, check the height at startIndex + width, if it's within bounds
-    int rightHeight = (startIndex + width < containerWidth) ? skyline[startIndex + width] : INT_MAX;
+    int rightHeight = (startIndex + width < containerWidth) ? ceiling_height[startIndex + width] : INT_MAX;
 
     // The target height is the minimum of the two neighboring heights
     int targetHeight = (leftHeight < rightHeight) ? leftHeight : rightHeight;
 
-    // Now adjust the skyline in the current region
+    // Now adjust the ceiling_height in the current region
     for (int i = startIndex; i < startIndex + width && i < containerWidth; i++) {
         // If the current section's height is less than the target, adjust it to the target
-        if (skyline[i] < targetHeight) {
-            skyline[i] = targetHeight;
+        if (ceiling_height[i] < targetHeight) {
+            ceiling_height[i] = targetHeight;
         }
     }
 }
 
 
 
-// Main algorithm: Skyline Packing using BST
-int skylinePacking(Rectangle *rectangles, int n, int containerWidth) {
-    initializeSkyline(containerWidth);
+// Main algorithm: ceiling_height Packing using BST
+int ceiling_heightPacking(Rectangle *rectangles, int n, int containerWidth) {
+    initializeceiling_height(containerWidth);
     
     int area_sum = 0; //calculate the sum of all areas
     // Build BST
@@ -274,11 +274,11 @@ int skylinePacking(Rectangle *rectangles, int n, int containerWidth) {
             
             remainingRects--;
         } else {
-            printf("\nNo suitable rectangle found. Adjusting skyline at index %d :\n", startIndex);
-            adjustSkyline(startIndex, maxWidth, containerWidth);
+            printf("\nNo suitable rectangle found. Adjusting ceiling_height at index %d :\n", startIndex);
+            adjustceiling_height(startIndex, maxWidth, containerWidth);
         }
         
-        printSkyline(containerWidth);
+        printceiling_height(containerWidth);
     }
     
     // Clean up BST
@@ -294,7 +294,7 @@ int skylinePacking(Rectangle *rectangles, int n, int containerWidth) {
     // printf("The sum of all areas is: %d\n", area_sum);
 
     printf("\n--------------------conclusion---------------------\n");
-    printf("- Approximation Ratio for skyline packing: %.4f%%\n", radio);
+    printf("- Approximation Ratio for ceiling_height packing: %.4f%%\n", radio);
     
     return current_height;
 }
