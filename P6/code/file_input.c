@@ -1,30 +1,13 @@
-#include "solution.h"
+#include "Partition_heap.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-// Function declarations
-TreeNode* createNode(Rectangle rect);
-TreeNode* insert(TreeNode* root, Rectangle rect);
-TreeNode* findLargestFit(TreeNode* root, int targetWidth);
-TreeNode* deleteNode(TreeNode* root, Rectangle rect);
-void cleanupBST(TreeNode* root);
-void initializeceiling_height(int width);
-void printceiling_height(int containerWidth);
-int findMaxWidth(int containerWidth, int* startIndex);
-void placeRectangle(int startIndex, int rectWidth, int rectHeight);
-int calculateHeight(int containerWidth);
-void adjustceiling_height(int startIndex, int width, int containerWidth);
-int ceiling_heightPacking(Rectangle *rectangles, int n, int containerWidth);
-
-// Global variable
-int ceiling_height[MAX_WIDTH];
 
 int main() {
     FILE *fp;
     int containerWidth; // Maximum width of the container
     int n; // Number of rectangles
 
-    fp = fopen("Generate_input/size_7000_short.txt", "r"); // Open input file, please change the file name to your own
+    fp = fopen("Generate_input/size_100_short.txt", "r"); // Open input file, please change the file name to your own
     if (fp == NULL) {
         printf("Error: Cannot open input file\n");
         return 1;
@@ -55,9 +38,9 @@ int main() {
 
     fclose(fp);
 
-    int finalHeight = ceiling_heightPacking(rectangles, n, containerWidth);  // Call the ceiling_height packing function
+    int finalHeight = partitionPacking(rectangles, n, containerWidth);  // Call the packing function
     
-    printf("- Final height dealing with %d rectangles by ceiling_height packing algorithm: %d\n", n, finalHeight);
+    printf("- Final height dealing with %d rectangles by Partition_heap packing algorithm: %d\n", n, finalHeight);
 
     free(rectangles);
     return 0;
