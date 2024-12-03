@@ -22,6 +22,7 @@ typedef struct {
     Partition **heap;  // Array of partitions
     int size;          // Current size of the heap
     int capacity;      // Maximum capacity
+    int max_height;   // max_height of all partitions
 } MinHeap;
 
 // Create a new partition
@@ -55,6 +56,7 @@ MinHeap* initialize_partition_heap(int containerWidth) {
     }
     heap->size = 0;
     heap->capacity = 1000;
+    heap->max_height = 0;    //set max_height to 0 initially
 
     // Create initial partition covering the entire width
     Partition *initial = createPartition(0, containerWidth, 0);
@@ -66,6 +68,7 @@ MinHeap* initialize_partition_heap(int containerWidth) {
 // Heapify up to maintain min-heap property
 void heapifyUp(MinHeap *heap, int index) {
     while (index > 0) {
+        // Find parent index
         int parent = (index - 1) / 2;
         if (heap->heap[index]->height < heap->heap[parent]->height) {
             // Swap partitions
@@ -87,6 +90,7 @@ void heapifyUp(MinHeap *heap, int index) {
 // Heapify down to maintain min-heap property
 void heapifyDown(MinHeap *heap, int index) {
     int smallest = index;
+    // Find smallest child index
     int left = 2 * index + 1;
     int right = 2 * index + 2;
 
@@ -96,6 +100,7 @@ void heapifyDown(MinHeap *heap, int index) {
     if (right < heap->size && heap->heap[right]->height < heap->heap[smallest]->height)
         smallest = right;
 
+    // If smallest is not the current index
     if (smallest != index) {
         // Swap partitions
         Partition *temp = heap->heap[index];
@@ -112,6 +117,10 @@ void heapifyDown(MinHeap *heap, int index) {
 
 // Insert a new partition into the min-heap
 void insertPartition(MinHeap *heap, Partition *part) {
+    // Update max_height if necessary
+    if(part->height > heap->max_height)
+        heap->max_height = part->height;
+    // Resize the heap if necessary
     if (heap->size == heap->capacity) {
         heap->capacity *= 2;
         Partition **temp = (Partition**)realloc(heap->heap, sizeof(Partition*) * heap->capacity);
@@ -122,11 +131,12 @@ void insertPartition(MinHeap *heap, Partition *part) {
         heap->heap = temp;
     }
 
+    // Insert the partition into the heap
     int i = heap->size;
     heap->heap[i] = part;
     part->heap_index = i;
     heap->size += 1;
-    heapifyUp(heap, i);
+    heapifyUp(heap, i);     // Maintain min-heap property
 }
 
 // Extract the partition with the smallest height and remove it from the heap
@@ -134,10 +144,10 @@ Partition* extractMinPartition(MinHeap *heap) {
     if (heap->size == 0) return NULL;
     Partition *min = heap->heap[0];
 
-    heap->heap[0] = heap->heap[heap->size - 1];
+    heap->heap[0] = heap->heap[heap->size - 1]; // Replace root with last element
     heap->heap[0]->heap_index = 0;
     heap->size--;
-    heapifyDown(heap, 0);
+    heapifyDown(heap, 0); // Maintain min-heap property
 
     printf("\nExtracted partition: start_index=%d, width=%d, height=%d\n",
         min->start_index, min->width, min->height);
@@ -146,7 +156,7 @@ Partition* extractMinPartition(MinHeap *heap) {
 
 // Remove a specified partition from the heap
 void removePartition(MinHeap *heap, Partition *part) {
-    int index = part->heap_index;
+    int index = part->heap_index; // Get the index of the partition in the heap
     if (index >= heap->size || index < 0) return; // Invalid index
 
     // Replace with the last partition
@@ -234,16 +244,16 @@ int partitionPacking(Rectangle *rectangles, int n, int containerWidth) {
         area_sum += rectangles[i].width * rectangles[i].height;
     }
 
-    int remainingRects = n;
+    int remainingRects = n; // Remaining rectangles to place
 
     while (remainingRects > 0) {
-        Partition *part = extractMinPartition(heap);
+        Partition *part = extractMinPartition(heap); // Get the partition with the smallest height
         if (part == NULL) break;
 
         printf("\nSelected partition: start_index=%d, width=%d, height=%d\n", 
                part->start_index, part->width, part->height);
 
-        TreeNode* bestFit = findLargestFit(root, part->width);
+        TreeNode* bestFit = findLargestFit(root, part->width); // Find the largest rectangle that fits in the partition
 
         if (bestFit != NULL) {
             Rectangle bestRect = bestFit->rect;
@@ -253,9 +263,9 @@ int partitionPacking(Rectangle *rectangles, int n, int containerWidth) {
 
             // Place the rectangle
             if (bestRect.width < part->width) {
-                // 创建右侧的新分区
+                // Split the partition into two parts
                 Partition *newPart = createPartition(part->start_index + bestRect.width, part->width - bestRect.width, part->height);
-                // 这个分区不需要检查与右侧是否需要合并，因为高度不同
+                // Update the left and right pointers of the current partition and the new partition
                 newPart->left = part;
                 newPart->right = part->right;
 
@@ -264,28 +274,30 @@ int partitionPacking(Rectangle *rectangles, int n, int containerWidth) {
                 }
 
                 part->right = newPart;
-
+                // Insert the new partition into the heap
                 insertPartition(heap, newPart); 
                 printf("New partition created: start_index=%d, width=%d, height=%d\n", 
                     newPart->start_index, newPart->width, newPart->height);
             }
-
-            // 更新当前分区的高度
+            // Update the partition's height and width
             part->height += bestRect.height;
             part->width = bestRect.width;
 
-            // 将更新后的分区重新插入堆中
+            // Insert the updated partition into the heap
             insertPartition(heap, part);
 
-            // 从 BST 中删除已放置的矩形
+            // Remove the rectangle from the BST
             root = deleteNode(root, bestRect);
             remainingRects--;
 
             printf("Remaining rectangles to place: %d\n", remainingRects);
             
         } else {
+            // No suitable rectangle found for the partition. Adjust the partition's height.
             printf("No suitable rectangle found for partition at index %d. Adjusting partition...\n", part->start_index);
             int slow_height = INT_MAX;
+
+            //find the slowest height of the partition's left and right subtrees
             if(!part->left)
                 slow_height = part->right->height;
             else if(!part->right){
@@ -295,33 +307,31 @@ int partitionPacking(Rectangle *rectangles, int n, int containerWidth) {
                 slow_height = part->left->height < part->right->height ?
                     part->left->height : part->right->height;
             }
+            //adjust the partition's height to the slowest height of its left and right subtrees
             part->height = slow_height;
             printf("Partition adjusted: start_index=%d,, height=%d\n", 
                 part->start_index, part->height);
-            insertPartition(heap, part);
+            insertPartition(heap, part); // Reinsert the updated partition into the heap
         }
 
-        // ：无论是否完美插入，都尝试合并分区
+        // Combine the current partition with its left and/or right neighbors if heights match
         combinePartitions(heap, part);
+
         for(int i = 0; i < heap->size; i++)
-            printf("\npartition %d's height is %d\n", i, heap->heap[i]->height);
+            printf("partition %d's height is %d\n", i, heap->heap[i]->height);
     }
 
-    // 计算最终容器高度
-    int finalHeight = 0;
-    for (int i = 0; i < heap->size; i++) {
-        if (heap->heap[i]->height > finalHeight) {
-            finalHeight = heap->heap[i]->height;
-        }
-    }
-    
+    //get the final height of the container
+    int finalHeight = heap->max_height;
+
     printf("\n-------------------- Conclusion --------------------\n");
     // printf("Final container height: %d\n", finalHeight);
     // printf("Total area of rectangles: %d\n", area_sum);
     printf("Approximation ratio: %.4f%%\n", (float)finalHeight / (area_sum / (float)containerWidth) * 100);
 
+    // Clean up the heap and BST
     cleanupBST(root);
-    cleanupHeap(heap); // 清理堆内存
+    cleanupHeap(heap); 
 
     return finalHeight;  // Final height of the container
 }
