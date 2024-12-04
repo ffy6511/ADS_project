@@ -4,17 +4,19 @@
 #include <limits.h>
 #include "Rectangle_BST.h"
 
+#define Element_type float
+
 ///////////////////////////////////////////////////////////
 // Part 2: Partition Structure and Min-Heap Operations
 ///////////////////////////////////////////////////////////
 
 typedef struct Partition {
-    int start_index; // Starting x-coordinate
-    int width;       // Width of the partition
-    int height;      // Current height
-    struct Partition *left;  // Pointer to left neighbor
-    struct Partition *right; // Pointer to right neighbor
-    int heap_index;           // Current index in the heap
+    Element_type start_index;  // Starting x-coordinate
+    Element_type width;        // Width of the partition
+    Element_type height;       // Current height
+    struct Partition *left;    // Pointer to left neighbor
+    struct Partition *right;   // Pointer to right neighbor
+    Element_type heap_index;   // Current index in the heap
 } Partition;
 
 // Min-heap structure for partitions
@@ -22,17 +24,18 @@ typedef struct {
     Partition **heap;  // Array of partitions
     int size;          // Current size of the heap
     int capacity;      // Maximum capacity
-    int max_height;   // max_height of all partitions
+    Element_type max_height;  // max_height of all partitions
 } MinHeap;
 
+
 // Create a new partition
-Partition* createPartition(int start_index, int width, int height) {
+Partition* createPartition(Element_type start_index, Element_type width, Element_type height) {
     Partition *part = (Partition*)malloc(sizeof(Partition));
     if (part == NULL) {
         fprintf(stderr, "Memory allocation failed!\n");
         exit(1);
     }
-    
+
     part->start_index = start_index;
     part->width = width;
     part->height = height;
@@ -43,7 +46,7 @@ Partition* createPartition(int start_index, int width, int height) {
 }
 
 // Initialize the min-heap for partitions
-MinHeap* initialize_partition_heap(int containerWidth) {
+MinHeap* initialize_partition_heap(Element_type containerWidth) {
     MinHeap *heap = (MinHeap*)malloc(sizeof(MinHeap));
     if (heap == NULL) {
         fprintf(stderr, "Memory allocation failed!\n");
@@ -149,8 +152,8 @@ Partition* extractMinPartition(MinHeap *heap) {
     heap->size--;
     heapifyDown(heap, 0); // Maintain min-heap property
 
-    printf("\nExtracted partition: start_index=%d, width=%d, height=%d\n",
-        min->start_index, min->width, min->height);
+    printf("\nExtracted partition: start_index=%.2f, width=%.2f, height=%.2f\n",
+        (float)min->start_index,(float) min->width, (float)min->height);
     return min;
 }
 
@@ -175,7 +178,7 @@ void combinePartitions(MinHeap *heap, Partition *part) {
 
     // Check and merge with left neighbor
     if (part->left != NULL && part->left->height == part->height) {
-        printf("Merging with left neighbor at index %d.\n", part->left->start_index);
+        printf("Merging with left neighbor at index %.2f.\n", (float)part->left->start_index);
         
         // Update current partition's start_index and width
         part->start_index = part->left->start_index;
@@ -194,7 +197,7 @@ void combinePartitions(MinHeap *heap, Partition *part) {
 
     // Check and merge with right neighbor
     if (part->right != NULL && part->right->height == part->height) {
-        printf("Merging with right neighbor at index %d.\n", part->right->start_index);
+        printf("Merging with right neighbor at index %f.\n", (float)part->right->start_index);
         
         // Update current partition's width
         part->width += part->right->width;
@@ -214,8 +217,8 @@ void combinePartitions(MinHeap *heap, Partition *part) {
         // Reinsert the updated partition into the heap to maintain heap properties
         heapifyUp(heap, part->heap_index);
         heapifyDown(heap, part->heap_index);
-        printf("Partition after merging: start_index=%d, width=%d, height=%d\n", 
-               part->start_index, part->width, part->height);
+        printf("Partition after merging: start_index=%.2f, width=%.2f, height=%.2f\n", 
+               (float)part->start_index, (float)part->width, (float)part->height);
     }
 }
 
@@ -234,10 +237,10 @@ void cleanupHeap(MinHeap *heap) {
 }
 
 // Main packing algorithm using partitions and BST
-int partitionPacking(Rectangle *rectangles, int n, int containerWidth) {
+Element_type partitionPacking(Rectangle *rectangles, int n, Element_type containerWidth) {
     MinHeap *heap = initialize_partition_heap(containerWidth);
 
-    int area_sum = 0;  // Calculate the sum of all areas
+    Element_type area_sum = 0;  // Calculate the sum of all areas
     TreeNode* root = NULL;
     for (int i = 0; i < n; i++) {
         root = insertBST(root, rectangles[i]);
@@ -250,16 +253,16 @@ int partitionPacking(Rectangle *rectangles, int n, int containerWidth) {
         Partition *part = extractMinPartition(heap); // Get the partition with the smallest height
         if (part == NULL) break;
 
-        printf("\nSelected partition: start_index=%d, width=%d, height=%d\n", 
-               part->start_index, part->width, part->height);
+        printf("\nSelected partition: start_index=%.2f, width=%.2f, height=%.2f\n", 
+               (float)part->start_index, (float)part->width, (float)part->height);
 
         TreeNode* bestFit = findLargestFit(root, part->width); // Find the largest rectangle that fits in the partition
 
         if (bestFit != NULL) {
             Rectangle bestRect = bestFit->rect;
 
-            printf("Placing rectangle: width=%d, height=%d in partition at index %d\n", 
-                   bestRect.width, bestRect.height, part->start_index);
+            printf("Placing rectangle: width=%.2f, height=%.2f in partition at index %.2f\n", 
+                   (float)bestRect.width, (float)bestRect.height, (float)part->start_index);
 
             // Place the rectangle
             if (bestRect.width < part->width) {
@@ -276,8 +279,8 @@ int partitionPacking(Rectangle *rectangles, int n, int containerWidth) {
                 part->right = newPart;
                 // Insert the new partition into the heap
                 insertPartition(heap, newPart); 
-                printf("New partition created: start_index=%d, width=%d, height=%d\n", 
-                    newPart->start_index, newPart->width, newPart->height);
+                printf("New partition created: start_index=%.2f, width=%.2f, height=%.2f\n", 
+                    (float)newPart->start_index, (float)newPart->width, (float)newPart->height);
             }
             // Update the partition's height and width
             part->height += bestRect.height;
@@ -294,8 +297,8 @@ int partitionPacking(Rectangle *rectangles, int n, int containerWidth) {
             
         } else {
             // No suitable rectangle found for the partition. Adjust the partition's height.
-            printf("No suitable rectangle found for partition at index %d. Adjusting partition...\n", part->start_index);
-            int slow_height = INT_MAX;
+            printf("No suitable rectangle found for partition at index %.2f. Adjusting partition...\n", (float)part->start_index);
+            Element_type slow_height = part->height;
 
             //find the slowest height of the partition's left and right subtrees
             if(!part->left)
@@ -309,8 +312,8 @@ int partitionPacking(Rectangle *rectangles, int n, int containerWidth) {
             }
             //adjust the partition's height to the slowest height of its left and right subtrees
             part->height = slow_height;
-            printf("Partition adjusted: start_index=%d,, height=%d\n", 
-                part->start_index, part->height);
+            printf("Partition adjusted: start_index=%.2f,, height=%.2f\n", 
+                (float)part->start_index, (float)part->height);
             insertPartition(heap, part); // Reinsert the updated partition into the heap
         }
 
@@ -318,11 +321,11 @@ int partitionPacking(Rectangle *rectangles, int n, int containerWidth) {
         combinePartitions(heap, part);
 
         for(int i = 0; i < heap->size; i++)
-            printf("partition %d's height is %d\n", i, heap->heap[i]->height);
+            printf("partition %d's height is %.2f\n", i, (float)heap->heap[i]->height);
     }
 
     //get the final height of the container
-    int finalHeight = heap->max_height;
+    Element_type finalHeight = heap->max_height;
 
     printf("\n-------------------- Conclusion --------------------\n");
     // printf("Final container height: %d\n", finalHeight);

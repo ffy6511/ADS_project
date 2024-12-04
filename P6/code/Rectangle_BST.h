@@ -3,13 +3,15 @@
 #include <stdbool.h>
 #include <limits.h>
 
+#define Element_type float
+
 ///////////////////////////////////////////////////////////
 // Part 1: Rectangle Structure and BST Operations
 ///////////////////////////////////////////////////////////
 
 typedef struct {
-    int width;
-    int height;
+    Element_type width;
+    Element_type height;
 } Rectangle;
 
 // BST node structure
@@ -46,7 +48,7 @@ TreeNode* insertBST(TreeNode* root, Rectangle rect) {
 }
 
 // Find the largest rectangle that fits within the given width
-TreeNode* findLargestFit(TreeNode* root, int targetWidth) {
+TreeNode* findLargestFit(TreeNode* root, Element_type targetWidth) {
     if (root == NULL) return NULL;
 
     TreeNode* result = NULL;

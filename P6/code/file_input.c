@@ -2,9 +2,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define Element_type float // Change Element_type to int if you want to use integer input
+
+#ifdef Element_type
+    #if Element_type == float
+        #define ELEMENT_TYPE_FLOAT
+    #else
+        #define ELEMENT_TYPE_INT
+    #endif
+#endif
+
 int main() {
     FILE *fp;
-    int containerWidth; // Maximum width of the container
+    Element_type containerWidth; // Maximum width of the container
     int n; // Number of rectangles
 
     fp = fopen("Generate_input/size_100_short.txt", "r"); // Open input file, please change the file name to your own
@@ -13,7 +23,13 @@ int main() {
         return 1;
     }
 
-    fscanf(fp, "%d", &containerWidth);
+    // Read the container width and number of rectangles from the input file
+    #ifdef ELEMENT_TYPE_FLOAT
+        fscanf(fp, "%f", &containerWidth);
+    #else
+        fscanf(fp, "%d", &containerWidth);
+    #endif
+
     fscanf(fp, "%d", &n);
 
     Rectangle* rectangles = (Rectangle*)malloc(n * sizeof(Rectangle));
@@ -24,7 +40,12 @@ int main() {
     }
 
     for (int i = 0; i < n; i++) {
-        fscanf(fp, "%d %d", &rectangles[i].width, &rectangles[i].height);
+       #ifdef ELEMENT_TYPE_FLOAT
+        fscanf(fp, "%f %f", &rectangles[i].width, &rectangles[i].height);
+        #else
+            fscanf(fp, "%d %d", &rectangles[i].width, &rectangles[i].height);
+        #endif
+
         
         //check if the rectangle size is valid
         if (rectangles[i].width <= 0 || rectangles[i].height <= 0 || 
@@ -38,9 +59,9 @@ int main() {
 
     fclose(fp);
 
-    int finalHeight = partitionPacking(rectangles, n, containerWidth);  // Call the packing function
+    float finalHeight = partitionPacking(rectangles, n, containerWidth);  // Call the packing function
     
-    printf("- Final height dealing with %d rectangles by Partition_heap packing algorithm: %d\n", n, finalHeight);
+    printf("- Final height dealing with %d rectangles by Partition_heap packing algorithm: %.2f\n", n, finalHeight);
 
     free(rectangles);
     return 0;

@@ -1,12 +1,10 @@
 #include "Partition_heap.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-// Main packing algorithm
-int partitionPacking(Rectangle *rectangles, int n, int containerWidth);
+#define Element_type float
 
 int main() {
-    int containerWidth = 10; //max width of the container
+    Element_type containerWidth = 10; //max width of the container
 
     //initialize rectangles
     Rectangle rectangles[] = {
@@ -15,7 +13,7 @@ int main() {
     int n = sizeof(rectangles) / sizeof(rectangles[0]);
 
    // Call the partition packing function
-    int finalHeight = partitionPacking(rectangles, n, containerWidth);
-    printf("\nFinal container height: %d\n", finalHeight);
+    float finalHeight = partitionPacking(rectangles, n, containerWidth);
+    printf("\nFinal container height: %.2f\n", finalHeight);
     return 0;
 }
