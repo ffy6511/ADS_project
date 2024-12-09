@@ -8,18 +8,21 @@ section.has-light-background, section.has-light-background h1, section.has-light
   color: #222;
 }
 
+@include light-bg-text-color(#222);
+
+
 /*********************************************
  * GLOBAL STYLES
  *********************************************/
 :root {
-  --r-background-color: #191919;
+  --r-background-color: rgb(41, 40, 40);
   --r-main-font: Source Sans Pro, Helvetica, sans-serif;
   --r-main-font-size: 42px;
-  --r-main-color: #fff;
+  --r-main-color: #dedbdb;
   --r-block-margin: 20px;
   --r-heading-margin: 0 0 20px 0;
   --r-heading-font: Source Sans Pro, Helvetica, sans-serif;
-  --r-heading-color: #fff;
+  --r-heading-color: #dedbdb;
   --r-heading-line-height: 1.2;
   --r-heading-letter-spacing: normal;
   --r-heading-text-transform: uppercase;
@@ -35,11 +38,11 @@ section.has-light-background, section.has-light-background h1, section.has-light
   --r-link-color-dark: #068de9;
   --r-link-color-hover: #8dcffc;
   --r-selection-background-color: #bee4fd;
-  --r-selection-color: #fff;
+  --r-selection-color: #dedbdb;
 }
 
 .reveal-viewport {
-  background: #191919;
+  background: #454545;
   background-color: var(--r-background-color);
 }
 
